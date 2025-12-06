@@ -98,6 +98,37 @@ struct AppState: Equatable {
     }
 }
 
+#if DEBUG
+private final class PreviewWebSocketManager: WebSocketManaging {
+    let updates = PassthroughSubject<PriceUpdate, Never>()
+    let connectionStatus = CurrentValueSubject<ConnectionState, Never>(.connected)
+
+    func connect(with symbols: [StockSymbol]) {}
+    func disconnect() {}
+}
+
+extension PriceTrackerStore {
+    static func previewStore() -> PriceTrackerStore {
+        let symbols = Array(StockSymbol.demoSymbols.prefix(3))
+        let samplePrices: [String: PriceUpdate] = [
+            "AAPL": PriceUpdate(symbol: "AAPL", price: 192.34, change: 1.12),
+            "MSFT": PriceUpdate(symbol: "MSFT", price: 350.44, change: -2.13),
+            "GOOG": PriceUpdate(symbol: "GOOG", price: 140.02, change: 0.45)
+        ]
+
+        let store = PriceTrackerStore(webSocketManager: PreviewWebSocketManager(), symbols: symbols)
+        store.state = AppState(
+            symbols: symbols,
+            prices: samplePrices,
+            connectionState: .connected,
+            selectedSymbol: symbols.first,
+            flashes: ["AAPL": .up, "MSFT": .down]
+        )
+        return store
+    }
+}
+#endif
+
 @MainActor
 final class PriceTrackerStore: ObservableObject {
     @Published private(set) var state: AppState

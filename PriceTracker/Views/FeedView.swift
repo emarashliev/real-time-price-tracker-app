@@ -84,3 +84,10 @@ struct FeedView: View {
         viewModel.state.connectionState.isActive
     }
 }
+
+#Preview {
+    NavigationStack {
+        FeedView()
+            .environmentObject(PriceTrackerStore.previewStore())
+    }
+}

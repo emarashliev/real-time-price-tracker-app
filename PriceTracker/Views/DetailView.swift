@@ -45,3 +45,13 @@ struct DetailView: View {
         }
     }
 }
+
+#Preview {
+    let store = PriceTrackerStore.previewStore()
+    let symbol = store.state.selectedSymbol ?? store.state.symbols[0]
+
+    return NavigationStack {
+        DetailView(symbol: symbol)
+            .environmentObject(store)
+    }
+}
