@@ -3,6 +3,7 @@ import Foundation
 
 struct AppState: Equatable {
     let symbols: [StockSymbol]
+    let symbolsByTicker: [String: StockSymbol]
     let prices: [String: PriceUpdate]
     let connectionState: ConnectionState
     let selectedSymbol: StockSymbol?
@@ -15,7 +16,25 @@ struct AppState: Equatable {
         selectedSymbol: StockSymbol? = nil,
         flashes: [String: PriceFlash] = [:]
     ) {
+        precondition(!symbols.isEmpty, "AppState requires at least one symbol")
         self.symbols = symbols
+        self.symbolsByTicker = Dictionary(uniqueKeysWithValues: symbols.map { ($0.ticker, $0) })
+        self.prices = prices
+        self.connectionState = connectionState
+        self.selectedSymbol = selectedSymbol
+        self.flashes = flashes
+    }
+
+    private init(
+        symbols: [StockSymbol],
+        symbolsByTicker: [String: StockSymbol],
+        prices: [String: PriceUpdate],
+        connectionState: ConnectionState,
+        selectedSymbol: StockSymbol?,
+        flashes: [String: PriceFlash]
+    ) {
+        self.symbols = symbols
+        self.symbolsByTicker = symbolsByTicker
         self.prices = prices
         self.connectionState = connectionState
         self.selectedSymbol = selectedSymbol
@@ -25,6 +44,7 @@ struct AppState: Equatable {
     func updatingConnection(_ newValue: ConnectionState) -> AppState {
         AppState(
             symbols: symbols,
+            symbolsByTicker: symbolsByTicker,
             prices: prices,
             connectionState: newValue,
             selectedSymbol: selectedSymbol,
@@ -36,11 +56,12 @@ struct AppState: Equatable {
         var nextPrices = prices
         nextPrices[update.symbol] = update
         var nextFlashes = flashes
-        if update.change != 0 {
+        if abs(update.change) > 0.001 {
             nextFlashes[update.symbol] = update.change >= 0 ? .up : .down
         }
         return AppState(
             symbols: symbols,
+            symbolsByTicker: symbolsByTicker,
             prices: nextPrices,
             connectionState: connectionState,
             selectedSymbol: selectedSymbol,
@@ -51,6 +72,7 @@ struct AppState: Equatable {
     func selecting(_ symbol: StockSymbol) -> AppState {
         AppState(
             symbols: symbols,
+            symbolsByTicker: symbolsByTicker,
             prices: prices,
             connectionState: connectionState,
             selectedSymbol: symbol,
@@ -63,11 +85,16 @@ struct AppState: Equatable {
         nextFlashes[symbol] = nil
         return AppState(
             symbols: symbols,
+            symbolsByTicker: symbolsByTicker,
             prices: prices,
             connectionState: connectionState,
             selectedSymbol: selectedSymbol,
             flashes: nextFlashes
         )
+    }
+
+    func symbol(for ticker: String) -> StockSymbol? {
+        symbolsByTicker[ticker]
     }
 }
 
@@ -75,11 +102,11 @@ struct AppState: Equatable {
 final class PriceTrackerStore: ObservableObject {
     @Published private(set) var state: AppState
 
-    private let webSocketManager: WebSocketManager
+    private let webSocketManager: WebSocketManaging
     private var cancellables: Set<AnyCancellable> = []
     private var flashTasks: [String: Task<Void, Never>] = [:]
 
-    init(webSocketManager: WebSocketManager = .shared, symbols: [StockSymbol] = StockSymbol.demoSymbols) {
+    init(webSocketManager: WebSocketManaging = WebSocketManager.shared, symbols: [StockSymbol] = StockSymbol.demoSymbols) {
         self.webSocketManager = webSocketManager
         state = AppState(symbols: symbols, selectedSymbol: symbols.first)
         bind()
@@ -122,7 +149,7 @@ final class PriceTrackerStore: ObservableObject {
     private func scheduleFlashClear(for symbol: String) {
         flashTasks[symbol]?.cancel()
         flashTasks[symbol] = Task { [weak self] in
-            try? await Task.sleep(nanoseconds: 1_000_000_000)
+            try? await Task.sleep(nanoseconds: Constants.flashDuration)
             await MainActor.run {
                 guard let self else { return }
                 self.state = self.state.clearingFlash(for: symbol)

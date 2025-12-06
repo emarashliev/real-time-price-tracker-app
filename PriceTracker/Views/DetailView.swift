@@ -26,7 +26,7 @@ struct DetailView: View {
                         .bold()
                         .padding(.horizontal, 8)
                         .padding(.vertical, 6)
-                        .background(flashColor(for: viewModel.state.flash))
+                        .background(PriceFlash.backgroundColor(for: viewModel.state.flash))
                         .cornerRadius(10)
                         .animation(.easeInOut(duration: 0.2), value: viewModel.state.flash)
                 }
@@ -41,19 +41,7 @@ struct DetailView: View {
         .padding()
         .navigationTitle(viewModel.state.symbol)
         .onAppear {
-            store.select(symbol: symbol)
-            viewModel.configure(with: store)
-        }
-    }
-
-    private func flashColor(for flash: PriceFlash?) -> Color {
-        switch flash {
-        case .up:
-            return Color.green.opacity(0.2)
-        case .down:
-            return Color.red.opacity(0.2)
-        case .none:
-            return .clear
+            viewModel.configure(with: store, symbol: symbol)
         }
     }
 }

@@ -4,10 +4,11 @@ enum ConnectionState: Equatable {
     case disconnected
     case connecting
     case connected
+    case reconnecting(attempt: Int)
 
     var isActive: Bool {
         switch self {
-        case .connecting, .connected:
+        case .connecting, .connected, .reconnecting:
             return true
         case .disconnected:
             return false
@@ -22,6 +23,8 @@ enum ConnectionState: Equatable {
             return "Connecting"
         case .connected:
             return "Live"
+        case .reconnecting(let attempt):
+            return "Reconnecting (\(attempt)/\(Constants.maxReconnectAttempts))"
         }
     }
 }

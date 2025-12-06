@@ -24,36 +24,40 @@ final class DetailViewModel: ObservableObject {
     )
 
     private var store: PriceTrackerStore?
+    private var targetSymbol: StockSymbol?
     private var cancellables: Set<AnyCancellable> = []
 
-    func configure(with store: PriceTrackerStore) {
+    func configure(with store: PriceTrackerStore, symbol: StockSymbol) {
         guard self.store == nil else { return }
         self.store = store
-        state = DetailViewModel.makeState(from: store.state)
+        self.targetSymbol = symbol
+        store.select(symbol: symbol)
+        state = DetailViewModel.makeState(from: store.state, targetSymbol: symbol)
         bind()
     }
 
     private func bind() {
-        guard let store else { return }
+        guard let store, let targetSymbol else { return }
 
         store.$state
-            .map(DetailViewModel.makeState)
+            .map { appState in
+                DetailViewModel.makeState(from: appState, targetSymbol: targetSymbol)
+            }
             .removeDuplicates()
             .assign(to: &$state)
     }
 
-    private static func makeState(from appState: AppState) -> DetailViewState {
-        let symbol = appState.selectedSymbol ?? appState.symbols.first!
-        let update = appState.prices[symbol.ticker]
+    private static func makeState(from appState: AppState, targetSymbol: StockSymbol) -> DetailViewState {
+        let update = appState.prices[targetSymbol.ticker]
         let priceText = update?.formattedPrice ?? "$--"
         let arrow = (update?.change ?? 0) >= 0 ? "arrow.up" : "arrow.down"
         let positive = (update?.change ?? 0) >= 0
-        let flash = appState.flashes[symbol.ticker]
+        let flash = appState.flashes[targetSymbol.ticker]
 
         return DetailViewState(
-            symbol: symbol.ticker,
-            name: symbol.name,
-            description: symbol.description,
+            symbol: targetSymbol.ticker,
+            name: targetSymbol.name,
+            description: targetSymbol.description,
             priceText: priceText,
             changeArrow: arrow,
             isPositive: positive,

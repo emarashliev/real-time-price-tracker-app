@@ -21,7 +21,14 @@
 		00000000000000000000003B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000008 /* Assets.xcassets */; };
 		00000000000000000000003C /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000000A /* Preview Assets.xcassets */; };
 		00000000000000000000003D /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000002B /* Logger.swift */; };
+		00000000000000000000003E /* WebSocketManaging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000002D /* WebSocketManaging.swift */; };
+		00000000000000000000003F /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000002E /* Constants.swift */; };
+		000000000000000000000040 /* PriceFlash+Color.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000002F /* PriceFlash+Color.swift */; };
 		00000000000000000000004A /* PriceTrackerStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000049 /* PriceTrackerStoreTests.swift */; };
+		000000000000000000000055 /* MockWebSocketManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000054 /* MockWebSocketManager.swift */; };
+		000000000000000000000056 /* AppStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000057 /* AppStateTests.swift */; };
+		000000000000000000000058 /* FeedViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000000000000000000000059 /* FeedViewModelTests.swift */; };
+		00000000000000000000005A /* DetailViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 00000000000000000000005B /* DetailViewModelTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -51,8 +58,15 @@
 		000000000000000000000029 /* StockSymbol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StockSymbol.swift; sourceTree = "<group>"; };
 		00000000000000000000002A /* PriceUpdate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PriceUpdate.swift; sourceTree = "<group>"; };
 		00000000000000000000002B /* Logger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logger.swift; sourceTree = "<group>"; };
+		00000000000000000000002D /* WebSocketManaging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebSocketManaging.swift; sourceTree = "<group>"; };
+		00000000000000000000002E /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
+		00000000000000000000002F /* PriceFlash+Color.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PriceFlash+Color.swift"; sourceTree = "<group>"; };
 		000000000000000000000049 /* PriceTrackerStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PriceTrackerStoreTests.swift; sourceTree = "<group>"; };
 		00000000000000000000004D /* PriceTrackerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PriceTrackerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		000000000000000000000054 /* MockWebSocketManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockWebSocketManager.swift; sourceTree = "<group>"; };
+		000000000000000000000057 /* AppStateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStateTests.swift; sourceTree = "<group>"; };
+		000000000000000000000059 /* FeedViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedViewModelTests.swift; sourceTree = "<group>"; };
+		00000000000000000000005B /* DetailViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailViewModelTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -111,6 +125,7 @@
 			isa = PBXGroup;
 			children = (
 				000000000000000000000027 /* WebSocketManager.swift */,
+				00000000000000000000002D /* WebSocketManaging.swift */,
 			);
 			path = Networking;
 			sourceTree = "<group>";
@@ -157,6 +172,8 @@
 			isa = PBXGroup;
 			children = (
 				00000000000000000000002B /* Logger.swift */,
+				00000000000000000000002E /* Constants.swift */,
+				00000000000000000000002F /* PriceFlash+Color.swift */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -165,6 +182,10 @@
 			isa = PBXGroup;
 			children = (
 				000000000000000000000049 /* PriceTrackerStoreTests.swift */,
+				000000000000000000000054 /* MockWebSocketManager.swift */,
+				000000000000000000000057 /* AppStateTests.swift */,
+				000000000000000000000059 /* FeedViewModelTests.swift */,
+				00000000000000000000005B /* DetailViewModelTests.swift */,
 			);
 			path = PriceTrackerTests;
 			sourceTree = "<group>";
@@ -268,10 +289,13 @@
 				000000000000000000000035 /* FeedViewModel.swift in Sources */,
 				000000000000000000000036 /* DetailViewModel.swift in Sources */,
 				000000000000000000000037 /* WebSocketManager.swift in Sources */,
+				00000000000000000000003E /* WebSocketManaging.swift in Sources */,
 				000000000000000000000038 /* ConnectionState.swift in Sources */,
 				000000000000000000000039 /* StockSymbol.swift in Sources */,
 				00000000000000000000003A /* PriceUpdate.swift in Sources */,
 				00000000000000000000003D /* Logger.swift in Sources */,
+				00000000000000000000003F /* Constants.swift in Sources */,
+				000000000000000000000040 /* PriceFlash+Color.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -280,6 +304,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				00000000000000000000004A /* PriceTrackerStoreTests.swift in Sources */,
+				000000000000000000000055 /* MockWebSocketManager.swift in Sources */,
+				000000000000000000000056 /* AppStateTests.swift in Sources */,
+				000000000000000000000058 /* FeedViewModelTests.swift in Sources */,
+				00000000000000000000005A /* DetailViewModelTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

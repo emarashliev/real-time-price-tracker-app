@@ -9,7 +9,7 @@ struct FeedView: View {
             statusBar
             controls
             List(viewModel.state.rows) { row in
-                if let symbol = store.state.symbols.first(where: { $0.ticker == row.id }) {
+                if let symbol = store.state.symbol(for: row.id) {
                     NavigationLink(value: symbol) {
                         HStack {
                             VStack(alignment: .leading) {
@@ -25,7 +25,7 @@ struct FeedView: View {
                                     .font(.headline)
                                     .padding(.horizontal, 6)
                                     .padding(.vertical, 4)
-                                    .background(flashColor(for: row.flash))
+                                    .background(PriceFlash.backgroundColor(for: row.flash))
                                     .cornerRadius(8)
                                     .animation(.easeInOut(duration: 0.2), value: row.flash)
                                 Text(row.changeText)
@@ -73,7 +73,7 @@ struct FeedView: View {
         switch state {
         case .connected:
             return .green
-        case .connecting:
+        case .connecting, .reconnecting:
             return .orange
         case .disconnected:
             return .gray
@@ -82,16 +82,5 @@ struct FeedView: View {
 
     private var isStreaming: Bool {
         viewModel.state.connectionState.isActive
-    }
-
-    private func flashColor(for flash: PriceFlash?) -> Color {
-        switch flash {
-        case .up:
-            return Color.green.opacity(0.2)
-        case .down:
-            return Color.red.opacity(0.2)
-        case .none:
-            return .clear
-        }
     }
 }
