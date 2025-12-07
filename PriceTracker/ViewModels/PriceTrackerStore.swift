@@ -29,6 +29,8 @@ struct AppState: Equatable {
         self.flashes = flashes
     }
 
+    // Internal initializer for state mutations. Reuses pre-computed symbolsByTicker
+    // to avoid O(n) dictionary rebuild on every state update.
     private init(
         symbols: [StockSymbol],
         symbolsByTicker: [String: StockSymbol],
@@ -60,6 +62,7 @@ struct AppState: Equatable {
         var nextPrices = prices
         nextPrices[update.symbol] = update
         var nextFlashes = flashes
+        // Only trigger flash animation for meaningful price changes (avoids flashing on near-zero deltas)
         if abs(update.change) > 0.001 {
             nextFlashes[update.symbol] = update.change >= 0 ? .up : .down
         }
@@ -134,12 +137,16 @@ extension PriceTrackerStore {
 }
 #endif
 
+// MARK: - PriceTrackerStore
+// Central store that coordinates WebSocket events and UI state.
+// Injected at app root via `.environmentObject()`.
 @MainActor
 final class PriceTrackerStore: ObservableObject {
     @Published private(set) var state: AppState
-    
+
     private let webSocketManager: WebSocketManaging
     private var cancellables: Set<AnyCancellable> = []
+    /// Tracks pending flash cleanup tasks. Keyed by ticker to allow cancellation when a new update arrives.
     private var flashTasks: [String: Task<Void, Never>] = [:]
     
     init(webSocketManager: WebSocketManaging = WebSocketManager.shared, symbols: [StockSymbol] = StockSymbol.demoSymbols) {
@@ -182,6 +189,8 @@ final class PriceTrackerStore: ObservableObject {
             .store(in: &cancellables)
     }
     
+    // Schedules flash removal after a delay. Cancels any existing task for this symbol
+    // so rapid updates don't stack up outdated cleanup tasks.
     private func scheduleFlashClear(for symbol: String) {
         flashTasks[symbol]?.cancel()
         flashTasks[symbol] = Task { [weak self] in

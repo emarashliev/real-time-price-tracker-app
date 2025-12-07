@@ -1,6 +1,8 @@
 import Combine
 import Foundation
 
+// MARK: - FeedRow
+// View-specific model for a single row in the price feed list.
 struct FeedRow: Identifiable, Equatable {
     let id: String
     let name: String
@@ -16,6 +18,9 @@ struct FeedViewState: Equatable {
     let connectionState: ConnectionState
 }
 
+// MARK: - FeedViewModel
+// Transforms global AppState into FeedViewState for the feed list view.
+// Subscribes to store state changes and maps to view-specific data.
 @MainActor
 final class FeedViewModel: ObservableObject {
     @Published private(set) var state: FeedViewState = .init(
@@ -46,6 +51,8 @@ final class FeedViewModel: ObservableObject {
         }
     }
 
+    // One-time configuration to bind to the store. Guard prevents re-binding
+    // if the view appears multiple times during navigation.
     func configure(with store: PriceTrackerStore) {
         guard self.store == nil else { return }
         self.store = store
@@ -81,7 +88,7 @@ final class FeedViewModel: ObservableObject {
                     flash: flash
                 )
             }
-            .sorted { lhs, rhs in lhs.priceValue > rhs.priceValue }
+            .sorted { lhs, rhs in lhs.priceValue > rhs.priceValue }  // Highest price first
 
         return FeedViewState(rows: rows, connectionState: appState.connectionState)
     }

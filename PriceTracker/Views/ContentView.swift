@@ -14,6 +14,8 @@ struct ContentView: View {
         .onOpenURL(perform: handleDeepLink)
     }
 
+    // Handles deep links in format: stocks://symbol/{TICKER}
+    // Example: stocks://symbol/AAPL opens the Apple stock detail view.
     private func handleDeepLink(_ url: URL) {
         guard url.scheme?.lowercased() == "stocks",
               url.host?.lowercased() == "symbol" else { return }

@@ -2,6 +2,9 @@ import Foundation
 import Combine
 import OSLog
 
+// MARK: - WebSocketManager
+// Singleton managing WebSocket connection lifecycle.
+// Uses Postman echo server for demo; in production, replace with a real price feed.
 final class WebSocketManager: NSObject, WebSocketManaging {
     static let shared = WebSocketManager()
 
@@ -12,9 +15,11 @@ final class WebSocketManager: NSObject, WebSocketManaging {
     private var heartbeatTask: Task<Void, Never>?
     private var receiveTask: Task<Void, Never>?
     private var reconnectTask: Task<Void, Never>?
+    /// Simulated price state. In production, prices would come from the server.
     private var priceBook: [String: Double] = [:]
     private var symbolsToStream: [StockSymbol] = []
     private var reconnectAttempt: Int = 0
+    /// Distinguishes user-initiated disconnect from connection failures to prevent unwanted auto-reconnect.
     private var isUserInitiatedDisconnect: Bool = false
 
     let updates = PassthroughSubject<PriceUpdate, Never>()
@@ -80,6 +85,7 @@ final class WebSocketManager: NSObject, WebSocketManaging {
         let attempt = reconnectAttempt
         connectionStatus.send(.reconnecting(attempt: attempt))
 
+        // Exponential backoff: 1s, 2s, 4s, 8s, 16s... capped at maxReconnectDelay
         let delay = min(
             Constants.initialReconnectDelay * pow(2.0, Double(attempt - 1)),
             Constants.maxReconnectDelay
@@ -150,6 +156,7 @@ final class WebSocketManager: NSObject, WebSocketManaging {
         }
     }
 
+    // Sends periodic pings to keep the connection alive and detect silent disconnects.
     private func startHeartbeat() {
         heartbeatTask?.cancel()
         heartbeatTask = Task { [weak self] in
@@ -187,6 +194,8 @@ final class WebSocketManager: NSObject, WebSocketManaging {
         }
     }
 
+    // Demo mode: generates random price movements locally.
+    // In production, prices would be received from the server via the receive loop.
     private func broadcastUpdates(for symbols: [StockSymbol]) async {
         for symbol in symbols {
             let existingPrice = priceBook[symbol.ticker] ?? Double.random(in: 40...250)
