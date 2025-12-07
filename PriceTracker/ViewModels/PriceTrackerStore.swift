@@ -117,13 +117,14 @@ extension PriceTrackerStore {
         ]
 
         let store = PriceTrackerStore(webSocketManager: PreviewWebSocketManager(), symbols: symbols)
-        store.state = AppState(
+        let state = AppState(
             symbols: symbols,
             prices: samplePrices,
             connectionState: .connected,
             selectedSymbol: symbols.first,
             flashes: ["AAPL": .up, "MSFT": .down]
         )
+        store.setState(state)
         return store
     }
 }
@@ -132,32 +133,32 @@ extension PriceTrackerStore {
 @MainActor
 final class PriceTrackerStore: ObservableObject {
     @Published private(set) var state: AppState
-
+    
     private let webSocketManager: WebSocketManaging
     private var cancellables: Set<AnyCancellable> = []
     private var flashTasks: [String: Task<Void, Never>] = [:]
-
+    
     init(webSocketManager: WebSocketManaging = WebSocketManager.shared, symbols: [StockSymbol] = StockSymbol.demoSymbols) {
         self.webSocketManager = webSocketManager
         state = AppState(symbols: symbols, selectedSymbol: symbols.first)
         bind()
     }
-
+    
     func startStreaming() {
         webSocketManager.connect(with: state.symbols)
     }
-
+    
     func stopStreaming() {
         webSocketManager.disconnect()
         flashTasks.values.forEach { $0.cancel() }
         flashTasks.removeAll()
         state = state.updatingConnection(.disconnected)
     }
-
+    
     func select(symbol: StockSymbol) {
         state = state.selecting(symbol)
     }
-
+    
     private func bind() {
         webSocketManager.connectionStatus
             .receive(on: RunLoop.main)
@@ -166,7 +167,7 @@ final class PriceTrackerStore: ObservableObject {
                 self.state = self.state.updatingConnection(newStatus)
             }
             .store(in: &cancellables)
-
+        
         webSocketManager.updates
             .receive(on: RunLoop.main)
             .sink { [weak self] update in
@@ -176,7 +177,7 @@ final class PriceTrackerStore: ObservableObject {
             }
             .store(in: &cancellables)
     }
-
+    
     private func scheduleFlashClear(for symbol: String) {
         flashTasks[symbol]?.cancel()
         flashTasks[symbol] = Task { [weak self] in
@@ -189,3 +190,13 @@ final class PriceTrackerStore: ObservableObject {
         }
     }
 }
+
+#if DEBUG
+extension PriceTrackerStore {
+    
+    
+    func setState(_ newState: AppState) {
+        state = newState
+    }
+}
+#endif
