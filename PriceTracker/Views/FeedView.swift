@@ -6,8 +6,11 @@ struct FeedView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            statusBar
-            controls
+            HStack {
+                statusBar
+                Spacer()
+                controls
+            }
             List(viewModel.state.rows) { row in
                 if let symbol = store.state.symbol(for: row.id) {
                     NavigationLink(value: symbol) {
@@ -36,9 +39,8 @@ struct FeedView: View {
                                 .foregroundColor(row.isPositive ? .green : .red)
                         }
                     }
-                    .simultaneousGesture(TapGesture().onEnded {
-                        viewModel.select(symbol: symbol)
-                    })
+                    .buttonStyle(.plain)
+                    .listRowBackground(Color(.systemBackground))
                 }
             }
             .listStyle(.plain)
