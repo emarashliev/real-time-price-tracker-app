@@ -1,12 +1,16 @@
 import Combine
 import Foundation
 
+// MARK: - AppState
+// Immutable state container. All mutations return a new instance,
+// enabling simple equality checks and predictable state updates.
 struct AppState: Equatable {
     let symbols: [StockSymbol]
     let symbolsByTicker: [String: StockSymbol]
     let prices: [String: PriceUpdate]
     let connectionState: ConnectionState
     let selectedSymbol: StockSymbol?
+    /// Temporary flash states for price change animations. Entries are auto-removed after `Constants.flashDuration`.
     let flashes: [String: PriceFlash]
 
     init(
